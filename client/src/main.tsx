@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
+import Home from './views/Home.tsx'
+import Room from './views/Room.tsx'
 import './index.css'
 import {
   createBrowserRouter,
@@ -10,8 +11,16 @@ import {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <Home />,
   },
+  {
+    path: "/room",
+    element: <Room />
+  },
+  {
+    path: "/room/:id",
+    element: <Room />,
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
