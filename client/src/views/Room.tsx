@@ -33,7 +33,7 @@ function Home() {
         }
     }, [lastMessage])
     useEffect(()=>{
-        if(gameId){
+        if(gameId && gameId!==id){
             // do something
             navigate(gameId);
         }
