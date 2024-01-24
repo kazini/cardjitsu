@@ -23,6 +23,14 @@ type Player = {
     socket: WebSocket
 }
 
+type connectionPayloadMessage = {
+    type: "CONNECT",
+    data: {
+        playerId: string,
+        gameId: string
+    }
+}
+
 type GameState = {
     players: Player[],
 }
@@ -81,6 +89,14 @@ wss.on('connection', (ws, req)=>{
     else{
         clientID = uuidv4();
         clients.set(clientID, ws);
+        const connectionPayload: connectionPayloadMessage = {
+            "type":"CONNECT",
+            "data":{
+                "playerId":clientID,
+                "gameId":roomID
+            }
+        } 
+        ws.send(JSON.stringify(connectionPayload));
         if(games.get(roomID)){
             games.get(roomID).players.push({id:clientID, socket:ws});
             if(games.get(roomID).players.length === 2){
