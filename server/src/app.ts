@@ -2,6 +2,7 @@ import express from "express";
 import { WebSocketServer, WebSocket } from "ws";
 import {v4 as uuidv4} from 'uuid';
 import crypto from "crypto"
+import uuidBase62 from "uuid-base62"
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -79,7 +80,12 @@ wss.on('connection', (ws, req)=>{
     }
     else{
         //No game room, make a new room!
-        roomID = crypto.randomBytes(4).toString('base64').replace("==", "");
+        //roomID = crypto.randomBytes(4).toString('base64').replace("==", "");
+        roomID = uuidBase62.v4().slice(0, 6);
+        while(games.has(roomID)){
+            //roomID = crypto.randomBytes(4).toString('base64').replace("==", "");
+            roomID = uuidBase62.v4().slice(0, 6);
+        }
     }
     if(games.get(roomID) && games.get(roomID).players.length>1){
         //Game room is already full, can't let them join!
