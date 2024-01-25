@@ -21,11 +21,10 @@ const server = app.listen(PORT, ()=>{
 
 type Player = {
     id: string,
-    socket: WebSocket
 }
 
 type connectionPayloadMessage = {
-    type: "CONNECT",
+    phase: "CONNECT",
     data: {
         playerId: string,
         gameId: string
@@ -36,11 +35,41 @@ type GameState = {
     players: Player[],
 }
 
+type updateMessage = {
+    phase: "START" | "END" | "PLAY" | "RESULT",
+    state: GameState
+}
+
 const wss = new WebSocketServer({noServer: true});
 const clients = new Map<string, WebSocket>();
 const games = new Map<string, GameState>();
-const gameLoop = (roomID : string) =>{
-    console.log(roomID);
+
+const gameLoop = (roomID : string, message : updateMessage) =>{
+    let interval:number;
+    if(games.get(roomID).players.length<2){
+        //If someone disconnected, just end game
+        message.phase="END";
+    }
+    if(message.phase==="START"){
+        //Handle Game Start
+
+        message.phase="PLAY";
+        interval = 5000;
+    }
+    else if(message.phase==="PLAY"){
+        message.phase="RESULT";
+        interval = 2000;
+    }
+    else if(message.phase==="RESULT"){
+        message.phase="PLAY";
+        interval=5000;
+    }
+    for(let i = 0; i< games.get(roomID).players.length; i++){
+        clients.get((games.get(roomID).players[i].id)).send(JSON.stringify(message));
+    }
+    if(message.phase!=="END"){
+        setTimeout(()=> gameLoop(roomID, message), interval);
+    }
 };
 
 const handleLeave = (clientID:string, roomID: string) =>{
@@ -96,7 +125,7 @@ wss.on('connection', (ws, req)=>{
         clientID = uuidv4();
         clients.set(clientID, ws);
         const connectionPayload: connectionPayloadMessage = {
-            "type":"CONNECT",
+            "phase":"CONNECT",
             "data":{
                 "playerId":clientID,
                 "gameId":roomID
@@ -104,15 +133,19 @@ wss.on('connection', (ws, req)=>{
         } 
         ws.send(JSON.stringify(connectionPayload));
         if(games.get(roomID)){
-            games.get(roomID).players.push({id:clientID, socket:ws});
+            games.get(roomID).players.push({id:clientID});
             if(games.get(roomID).players.length === 2){
                 //Start the game loop!
-                setTimeout(() => gameLoop(roomID), 10000);
+                const startMessage: updateMessage = {
+                    "phase" : "START",
+                    "state" : games.get(roomID) 
+                }
+                setTimeout(() => gameLoop(roomID, startMessage), 1000);
             }
         }
         else{
             const newGameState = {
-                players : [{id: clientID, socket: ws}] 
+                players : [{id: clientID}]
             }
             games.set(roomID, newGameState);
         }
@@ -131,7 +164,7 @@ wss.on('connection', (ws, req)=>{
     ws.on('message', (msg, isBinary)=>{
         const currTime = new Date();
         games.get(roomID).players.forEach((p)=>{
-            p.socket.send(`[${currTime.getHours().toString()}:${currTime.getMinutes().toString()}] ${clientID}: ` +msg.toString());
+            clients.get(p.id).send(`[${currTime.getHours().toString()}:${currTime.getMinutes().toString()}] ${clientID}: ` +msg.toString());
         });
     });
 })
