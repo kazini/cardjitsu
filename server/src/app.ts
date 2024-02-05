@@ -3,6 +3,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import {v4 as uuidv4} from 'uuid';
 import crypto from "crypto"
 import uuidBase62 from "uuid-base62"
+import cors from "cors"
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -10,6 +11,10 @@ const app = express();
 const onSocketPreError = (e:Error):void =>{
     console.log(e);
 }
+
+app.use(cors({
+    origin: '*'
+}))
 
 app.get('/', (req, res)=>{
     res.send("Welcome to my API");
@@ -56,6 +61,18 @@ type updateMessage = {
 const wss = new WebSocketServer({noServer: true});
 const clients = new Map<string, WebSocket>();
 const games = new Map<string, GameState>();
+
+app.get('/createGame', (req, res)=>{
+    let roomID = uuidBase62.v4().slice(0, 6);
+    while(games.has(roomID)){
+        //roomID = crypto.randomBytes(4).toString('base64').replace("==", "");
+        roomID = uuidBase62.v4().slice(0, 6);
+    }
+    res.status(200).send({
+        id: roomID
+    });
+});
+
 const createNewGameState = (): GameState =>{
     return {
         players: [],
