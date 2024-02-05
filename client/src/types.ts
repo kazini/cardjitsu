@@ -1,5 +1,5 @@
 type connectionPayloadMessage = {
-    type: "CONNECT",
+    phase: "CONNECT",
     data: {
         playerId: string,
         gameId: string

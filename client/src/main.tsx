@@ -7,6 +7,7 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
+import CreateGame from './views/createGame.tsx'
 
 const router = createBrowserRouter([
   {
@@ -14,8 +15,8 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: "/room",
-    element: <Room />
+    path: "/create",
+    element: <CreateGame />
   },
   {
     path: "/room/:id",

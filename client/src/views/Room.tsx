@@ -16,28 +16,33 @@ function Home() {
         <p>{msg}</p>
     ));
     
-    const { sendMessage, lastJsonMessage, lastMessage, readyState } = useWebSocket(`ws://localhost:3000${id&&id.length===6 ? "?room=" + id : ""}`);
-    const handleClickSendMessage = useCallback(() => sendMessage(inputText), [inputText]);
+    const { sendMessage, lastJsonMessage, readyState } = useWebSocket(`ws://localhost:3000${id&&id.length===6 ? "?room=" + id : ""}`);
+    
+    const handleClickSendMessage = useCallback(() => {
+        sendMessage(inputText);
+        setInputText("");
+    }, [inputText]);
+
     useEffect(() => {
         if (lastJsonMessage && Object.keys(lastJsonMessage).length>0) {
             const message = lastJsonMessage as socketMessage;
-            if(message.type && message.type==="CONNECT"){
+            if(message.phase && message.phase==="CONNECT"){
                 setPlayerId(message.data.playerId);
                 setGameId(message.data.gameId);
             }
+            else{
+                setMessageHistory((prev) => [...prev, JSON.stringify(message)]);
+            }
         }
     }, [lastJsonMessage]);
-    useEffect(()=>{
-        if (lastMessage !== null) {
-            setMessageHistory((prev) => [...prev, lastMessage.data]);
-        }
-    }, [lastMessage])
+
     useEffect(()=>{
         if(gameId && gameId!==id){
             // do something
             navigate(gameId);
         }
     }, [gameId])
+    
     const connectionStatus = {
         [ReadyState.CONNECTING]: 'Connecting',
         [ReadyState.OPEN]: 'Open',
