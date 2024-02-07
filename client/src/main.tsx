@@ -7,7 +7,7 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import CreateGame from './views/createGame.tsx'
+import CreateGame from './views/CreateGame.tsx'
 
 const router = createBrowserRouter([
   {

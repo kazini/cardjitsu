@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useNavigate } from "react-router-dom";
 function CreateGame() {
-    const [id, setId] = useState();
     const navigate = useNavigate();
     useEffect(()=>{
         //Fetch for a roomID
@@ -11,7 +10,6 @@ function CreateGame() {
     }, [navigate])
     return (
     <div className="">
-        {id}
     </div>
   )
 }
