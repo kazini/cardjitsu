@@ -158,10 +158,10 @@ const checkRoundWon = (card1:Card, card2:Card, roomID:string): number =>{
 const checkGameWon = (roomID: string):number=>{
 
     const scores = games.get(roomID).score;
-    if(scores[0][0]=== 3 || scores[0][1]=== 3 || scores[0][2]===3 || (scores[0][0]===1 && scores[0][1]===1 && scores[0][2]===1)){
+    if(scores[0][0]=== 3 || scores[0][1]=== 3 || scores[0][2]===3 || (scores[0][0]>=1 && scores[0][1]>=1 && scores[0][2]>=1)){
         return 0;
     }
-    else if(scores[1][0]=== 3 || scores[1][1]=== 3 || scores[1][2]===3 || (scores[1][0]===1 && scores[1][1]===1 && scores[1][2]===1)){
+    else if(scores[1][0]=== 3 || scores[1][1]=== 3 || scores[1][2]===3 || (scores[1][0]>=1 && scores[1][1]>=1 && scores[1][2]>=1)){
         return 1;
     }
     else{
@@ -218,6 +218,9 @@ const handlePlayFinished = (roomID: string, message: updateMessage) :void =>{
 
 const gameLoop = (roomID : string, message : updateMessage) =>{
     let interval:number;
+    if(!games.has(roomID)){
+        return;
+    }
     if(games.get(roomID).players.length<2){
         //If someone disconnected, just end game
         message.phase="END";
@@ -243,6 +246,9 @@ const gameLoop = (roomID : string, message : updateMessage) =>{
     }
     else{
         //close their connections out
+        for(let i = 0; i< games.get(roomID).players.length; i++){
+            clients.get((games.get(roomID).players[i].id)).close();
+        }
     }
 };
 
@@ -314,6 +320,11 @@ wss.on('connection', (ws, req)=>{
                     "phase" : "START",
                     "state" : games.get(roomID) 
                 }
+                for(let i = 0; i< games.get(roomID).players.length; i++){
+                    clients.get((games.get(roomID).players[i].id)).send(JSON.stringify(startMessage));
+                }
+                console.log("Game Started");
+                console.log(`Games in session: ${games.size}`);
                 setTimeout(() => gameLoop(roomID, startMessage), 1000);
             }
         }
