@@ -43,7 +43,6 @@ type Card = {
     value: number,
 }
 
-
 type GameState = {
     players: Player[],
     winner: null | string,
@@ -58,6 +57,11 @@ type updateMessage = {
     state: GameState
 }
 
+export type actionMessage = {
+    method: "ACTION",
+    selected: number
+}
+
 const wss = new WebSocketServer({noServer: true});
 const clients = new Map<string, WebSocket>();
 const games = new Map<string, GameState>();
@@ -65,7 +69,6 @@ const games = new Map<string, GameState>();
 app.get('/createGame', (req, res)=>{
     let roomID = uuidBase62.v4().slice(0, 6);
     while(games.has(roomID)){
-        //roomID = crypto.randomBytes(4).toString('base64').replace("==", "");
         roomID = uuidBase62.v4().slice(0, 6);
     }
     res.status(200).send({
@@ -272,6 +275,11 @@ const handleLeave = (clientID:string, roomID: string) =>{
     clients.delete(clientID);
 }
 
+const handleAction = (clientID:string, roomID:string, index:number) =>{
+    const playerIndex = games.get(roomID).players[0].id === clientID ? 0 : 1;
+    games.get(roomID).selected[playerIndex] = index;
+}
+
 server.on('upgrade', (req, socket, head)=>{
     socket.on('error', onSocketPreError);
     wss.handleUpgrade(req, socket, head, (ws)=>{
@@ -289,10 +297,8 @@ wss.on('connection', (ws, req)=>{
     }
     else{
         //No game room, make a new room!
-        //roomID = crypto.randomBytes(4).toString('base64').replace("==", "");
         roomID = uuidBase62.v4().slice(0, 6);
         while(games.has(roomID)){
-            //roomID = crypto.randomBytes(4).toString('base64').replace("==", "");
             roomID = uuidBase62.v4().slice(0, 6);
         }
     }
@@ -346,9 +352,7 @@ wss.on('connection', (ws, req)=>{
         console.log(`Games in session: ${games.size}`);
     });
     ws.on('message', (msg, isBinary)=>{
-        const currTime = new Date();
-        games.get(roomID).players.forEach((p)=>{
-            clients.get(p.id).send(`[${currTime.getHours().toString()}:${currTime.getMinutes().toString()}] ${clientID}: ` +msg.toString());
-        });
+        const data: actionMessage = JSON.parse(msg.toString())
+        handleAction(clientID, roomID, data.selected);
     });
 })
