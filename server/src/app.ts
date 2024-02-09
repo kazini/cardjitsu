@@ -44,6 +44,7 @@ type Card = {
 }
 
 type GameState = {
+    phase: "START" | "END" | "PLAY" | "RESULT"
     players: Player[],
     winner: null | string,
     score: Array<Array<number>>,
@@ -52,10 +53,10 @@ type GameState = {
     roundWinner: string | null,
 }
 
-type updateMessage = {
-    phase: "START" | "END" | "PLAY" | "RESULT",
-    state: GameState
-}
+// type updateMessage = {
+//     phase: "START" | "END" | "PLAY" | "RESULT",
+//     state: GameState
+// }
 
 export type actionMessage = {
     method: "ACTION",
@@ -78,6 +79,7 @@ app.get('/createGame', (req, res)=>{
 
 const createNewGameState = (): GameState =>{
     return {
+        phase: "START",
         players: [],
         winner: null,
         score: [[], []],
@@ -172,7 +174,7 @@ const checkGameWon = (roomID: string):number=>{
     }
 }
 
-const handleGameStarted = (roomID: string, message: updateMessage) :void =>{
+const handleGameStarted = (roomID: string) :void =>{
     const players = games.get(roomID).players;
     games.get(roomID).winner =null;
     games.get(roomID).score = [[0, 0, 0], [0, 0, 0]];
@@ -180,18 +182,16 @@ const handleGameStarted = (roomID: string, message: updateMessage) :void =>{
     games.get(roomID).cards[1] = generateNewDeck();
     games.get(roomID).selected = [null, null];
     games.get(roomID).roundWinner = null;
-    message.phase = 'PLAY';
-    message.state = games.get(roomID);
+    games.get(roomID).phase = 'PLAY';
 }
-const handlePlayRound = (roomID: string, message: updateMessage) :void =>{
+const handlePlayRound = (roomID: string) :void =>{
     //Nothing really happens here
     games.get(roomID).winner = null;
     games.get(roomID).roundWinner = null;
     games.get(roomID).selected = [null, null];
-    message.phase='PLAY';
-    message.state=games.get(roomID);
+    games.get(roomID).phase='PLAY';
 }
-const handlePlayFinished = (roomID: string, message: updateMessage) :void =>{
+const handlePlayFinished = (roomID: string) :void =>{
     const card1 = games.get(roomID).cards[0][games.get(roomID).selected[0] | 0];
     const card2 = games.get(roomID).cards[1][games.get(roomID).selected[1] | 0];
     //Check who won that round
@@ -201,8 +201,7 @@ const handlePlayFinished = (roomID: string, message: updateMessage) :void =>{
     if(win!==-1){
         //Somebody won
         games.get(roomID).winner = win === games.get(roomID).players[0].index ? games.get(roomID).players[0].id : games.get(roomID).players[1].id;
-        message.phase='END';
-        message.state=games.get(roomID);
+        games.get(roomID).phase='END';
         return;
     }
     games.get(roomID).cards[0].splice(games.get(roomID).selected[0] | 0, 1);
@@ -215,37 +214,36 @@ const handlePlayFinished = (roomID: string, message: updateMessage) :void =>{
     else{
         games.get(roomID).roundWinner = games.get(roomID).players[1].id;
     }
-    message.phase='RESULT';
-    message.state=games.get(roomID);
+    games.get(roomID).phase='RESULT';
 }
 
-const gameLoop = (roomID : string, message : updateMessage) =>{
+const gameLoop = (roomID : string) =>{
     let interval:number;
     if(!games.has(roomID)){
         return;
     }
     if(games.get(roomID).players.length<2){
         //If someone disconnected, just end game
-        message.phase="END";
+        games.get(roomID).phase="END";
     }
-    if(message.phase==="START"){
+    if(games.get(roomID).phase==="START"){
         //Handle Game Start
-        handleGameStarted(roomID, message);
+        handleGameStarted(roomID);
         interval = 5000;
     }
-    else if(message.phase==="PLAY"){
-        handlePlayFinished(roomID, message);
+    else if(games.get(roomID).phase==="PLAY"){
+        handlePlayFinished(roomID);
         interval = 2000;
     }
-    else if(message.phase==="RESULT"){
-        handlePlayRound(roomID, message);
+    else if(games.get(roomID).phase==="RESULT"){
+        handlePlayRound(roomID);
         interval=5000;
     }
     for(let i = 0; i< games.get(roomID).players.length; i++){
-        clients.get((games.get(roomID).players[i].id)).send(JSON.stringify(message));
+        clients.get((games.get(roomID).players[i].id)).send(JSON.stringify(games.get(roomID)));
     }
-    if(message.phase!=="END"){
-        setTimeout(()=> gameLoop(roomID, message), interval);
+    if(games.get(roomID).phase!=="END"){
+        setTimeout(()=> gameLoop(roomID), interval);
     }
     else{
         //close their connections out
@@ -311,10 +309,10 @@ wss.on('connection', (ws, req)=>{
         clientID = uuidv4();
         clients.set(clientID, ws);
         const connectionPayload: connectionPayloadMessage = {
-            "phase":"CONNECT",
-            "data":{
-                "playerId":clientID,
-                "gameId":roomID
+            phase:"CONNECT",
+            data:{
+                playerId:clientID,
+                gameId:roomID
             }
         } 
         ws.send(JSON.stringify(connectionPayload));
@@ -322,16 +320,13 @@ wss.on('connection', (ws, req)=>{
             games.get(roomID).players.push({id:clientID, index: 1});
             if(games.get(roomID).players.length === 2){
                 //Start the game loop!
-                const startMessage: updateMessage = {
-                    "phase" : "START",
-                    "state" : games.get(roomID) 
-                }
+                //const startMessage: GameState = games.get(roomID);
                 for(let i = 0; i< games.get(roomID).players.length; i++){
-                    clients.get((games.get(roomID).players[i].id)).send(JSON.stringify(startMessage));
+                    clients.get((games.get(roomID).players[i].id)).send(JSON.stringify(games.get(roomID)));
                 }
                 console.log("Game Started");
                 console.log(`Games in session: ${games.size}`);
-                setTimeout(() => gameLoop(roomID, startMessage), 1000);
+                setTimeout(() => gameLoop(roomID), 1000);
             }
         }
         else{

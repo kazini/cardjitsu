@@ -19,6 +19,7 @@ type Player = {
 } 
 
 export type GameState = {
+    phase: "START" | "END" | "PLAY" | "RESULT",
     players: Player[],
     winner: null | string,
     score: Array<Array<number>>,
@@ -27,11 +28,11 @@ export type GameState = {
     roundWinner: string | null,
 }
 
-export type UpdateMessage = {
-    phase: "START" | "END" | "PLAY" | "RESULT",
-    state: GameState
-}
-export type SocketMessage = ConnectionPayloadMessage | UpdateMessage;
+// export type UpdateMessage = {
+//     phase: "START" | "END" | "PLAY" | "RESULT",
+//     state: GameState
+// }
+export type SocketMessage = ConnectionPayloadMessage | GameState;
 
 export type actionMessage = {
     method: "ACTION",

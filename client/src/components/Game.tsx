@@ -1,16 +1,16 @@
 // import { useEffect } from "react";
-import { UpdateMessage } from "../types";
+import { GameState } from "../types";
 import Cards from "./Cards";
 // import Play from "./Play";
 import Score from "./Score";
 
-function Game({ phase, playerId }: {phase: UpdateMessage | null, playerId: string}){
+function Game({ state, playerId }: {state: GameState | null, playerId: string}){
 
     return(
         <div className="w-full">
-        {phase && <Score state={phase.state} playerId={playerId}/>}
+        {state && <Score state={state} playerId={playerId}/>}
         {/* {phase?.phase==="PLAY" && <Play state={phase.state} playerId={playerId}/>} */}
-        {phase && <Cards state={phase.state} playerId={playerId}/>}
+        {state && <Cards state={state} playerId={playerId}/>}
         </div>
     )
 }

@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom"
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useState, useEffect, createContext } from "react";
-import { SocketMessage, UpdateMessage } from "../types";
+import { SocketMessage, GameState } from "../types";
 import Game from "../components/Game";
 import { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 
@@ -9,7 +9,7 @@ export const MessageContext = createContext<undefined | SendJsonMessage>(undefin
 
 function Home() {
     const {id} = useParams();
-    const [gamePhase, setGamePhase] = useState<UpdateMessage | null>(null);
+    const [gameState, setGameState] = useState<GameState | null>(null);
     const [playerId, setPlayerId] = useState<string>("");
     const [gameId, setGameId] = useState<string>();
     
@@ -22,8 +22,8 @@ function Home() {
                 setPlayerId(message.data.playerId);
                 setGameId(message.data.gameId);
             }
-            else if(message.phase && message.state){
-                setGamePhase(message);
+            else if(message.phase){
+                setGameState(message);
             }
             else{
                 //potentially handle errors
@@ -46,7 +46,7 @@ function Home() {
           <div className="flex flex-col gap-3 justify-center items-center text-white text-2xl mx-0 px-5">
               {gameId && <h1 className="text-blue-300">Player: {playerId}, Room: {gameId}</h1>}
               {connectionStatus}
-              <Game phase={gamePhase} playerId={playerId}/>
+              <Game state={gameState} playerId={playerId}/>
           </div>
         </MessageContext.Provider>
       </>
