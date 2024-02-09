@@ -5,7 +5,13 @@ import { SocketMessage, GameState } from "../types";
 import Game from "../components/Game";
 import { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 
-export const MessageContext = createContext<undefined | SendJsonMessage>(undefined);
+type SocketData = {
+  sendJsonMessage: SendJsonMessage,
+  state: GameState | null,
+  playerId: string
+}
+
+export const MessageContext = createContext<undefined | SocketData>(undefined);
 
 function Home() {
     const {id} = useParams();
@@ -42,11 +48,15 @@ function Home() {
     return (
       <>
         <Link to={`/`}>Home</Link>
-        <MessageContext.Provider value={sendJsonMessage}>
+        <MessageContext.Provider value={{
+          sendJsonMessage: sendJsonMessage,
+          state : gameState,
+          playerId: playerId
+          }}>
           <div className="flex flex-col gap-3 justify-center items-center text-white text-2xl mx-0 px-5">
               {gameId && <h1 className="text-blue-300">Player: {playerId}, Room: {gameId}</h1>}
               {connectionStatus}
-              <Game state={gameState} playerId={playerId}/>
+              {gameState && < Game/>}
           </div>
         </MessageContext.Provider>
       </>
