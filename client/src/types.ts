@@ -32,3 +32,8 @@ export type UpdateMessage = {
     state: GameState
 }
 export type SocketMessage = ConnectionPayloadMessage | UpdateMessage;
+
+export type actionMessage = {
+    method: "ACTION",
+    selected: number
+}
