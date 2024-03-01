@@ -4,6 +4,7 @@ import { useState, useEffect, createContext } from "react";
 import { SocketMessage, GameState } from "../types";
 import Game from "../components/Game";
 import { SendJsonMessage } from "react-use-websocket/dist/lib/types";
+import NavBar from "../components/NavBar";
 
 type SocketData = {
   sendJsonMessage: SendJsonMessage,
@@ -36,7 +37,7 @@ function Home() {
             }
         }
     }, [lastJsonMessage]);
-    
+
     const connectionStatus = {
         [ReadyState.CONNECTING]: 'Connecting',
         [ReadyState.OPEN]: 'Connected',
@@ -46,20 +47,16 @@ function Home() {
       }[readyState];
 
     return (
-      <>
-        <Link to={`/`}>Home</Link>
+      <div className="flex flex-col h-full">
+        <NavBar connection={connectionStatus}/>
         <MessageContext.Provider value={{
           sendJsonMessage: sendJsonMessage,
           state : gameState,
-          playerId: playerId
+          playerId: playerId,
           }}>
-          <div className="flex flex-col gap-3 justify-center items-center text-white text-2xl mx-0 px-5">
-              {gameId && <h1 className="text-blue-300">Player: {playerId}, Room: {gameId}</h1>}
-              {connectionStatus}
-              {gameState && < Game/>}
-          </div>
+            {gameState && < Game/>}
         </MessageContext.Provider>
-      </>
+      </div>
     )
   }
   

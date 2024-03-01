@@ -20,6 +20,7 @@ type Player = {
 
 export type GameState = {
     phase: "START" | "END" | "PLAY" | "RESULT",
+    time: number,
     players: Player[],
     winner: null | string,
     score: Array<Array<number>>,
