@@ -1,10 +1,10 @@
-import { Link, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useState, useEffect, createContext } from "react";
 import { SocketMessage, GameState } from "../types";
 import Game from "../components/Game";
 import { SendJsonMessage } from "react-use-websocket/dist/lib/types";
-import NavBar from "../components/NavBar";
+import Waiting from "../components/Waiting";
 
 type SocketData = {
   sendJsonMessage: SendJsonMessage,
@@ -18,7 +18,6 @@ function Home() {
     const {id} = useParams();
     const [gameState, setGameState] = useState<GameState | null>(null);
     const [playerId, setPlayerId] = useState<string>("");
-    const [gameId, setGameId] = useState<string>();
     
     const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(`ws://localhost:3000${id&&id.length===6 ? "?room=" + id : ""}`);
 
@@ -27,7 +26,7 @@ function Home() {
             const message = lastJsonMessage as SocketMessage;
             if(message.phase && message.phase==="CONNECT"){
                 setPlayerId(message.data.playerId);
-                setGameId(message.data.gameId);
+                // setGameId(message.data.gameId);
             }
             else if(message.phase){
                 setGameState(message);
@@ -47,16 +46,17 @@ function Home() {
       }[readyState];
 
     return (
-      <div className="flex flex-col h-full">
-        <NavBar connection={connectionStatus}/>
+      <>
+        {/* <NavBar connection={connectionStatus}/> */}
         <MessageContext.Provider value={{
           sendJsonMessage: sendJsonMessage,
           state : gameState,
           playerId: playerId,
           }}>
-            {gameState && < Game/>}
+            {gameState && <Game/>}
+            {!gameState && <Waiting id={id}/>}
         </MessageContext.Provider>
-      </div>
+      </>
     )
   }
   
