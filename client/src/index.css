@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body{
-    background-color:darkslategrey;
+    @apply bg-dark;
 }
 html, body, #root {
     height: 100%
