@@ -24,7 +24,7 @@ export const generateNewCard = (): Card =>{
     }
 }
 export const generateNewDeck = (): Card[] =>{
-    const numCards = 5;
+    const numCards = 4;
     const deck: Card[] = [];
     for(let i = 0; i<numCards; i++){
         const card = generateNewCard();
