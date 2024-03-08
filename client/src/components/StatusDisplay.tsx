@@ -1,22 +1,26 @@
 import { useContext, useEffect, useState } from "react";
 import { MessageContext } from "../views/Room";
-import { GameState } from "../types";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
+import { Card } from "../types";
+import SingleCard from "./SingleCard";
+// import { useGSAP } from "@gsap/react";
+// import gsap from "gsap";
 
-function RoundFinishedDisplay({state, playerId}:{state:GameState | null, playerId:string}){
-    const [player] = useState(state?.players.find(p=>p.id===playerId));
-    useGSAP(()=>{
-        if(player){
-            gsap.to(`player-card-${state?.selected[player.index]}`, {})
-        }
-    });
-    return(
-        <div></div>
-    )
-}
-function PlayStartDisplay({state}:{state:GameState | null}){
-    const [time, setTime] = useState((state?.time as number)/1000);
+// function RoundFinishedDisplay({state, playerId}:{state:GameState | null, playerId:string}){
+//     const [player] = useState(state?.players.find(p=>p.id===playerId));
+//     useGSAP(()=>{
+//         if(player){
+//             gsap.to(`player-card-${state?.selected[player.index]}`, {})
+//         }
+//     });
+//     return(
+//         <div></div>
+//     )
+// }
+
+function PlayStartDisplay(){
+    const socketData = useContext(MessageContext);
+    const [player] = useState(socketData?.state?.players.find(p=>p.id===socketData.playerId));
+    const [time, setTime] = useState((socketData?.state?.time as number)/1000);
     useEffect(() => {
         const timer = setInterval(()=>{
             if(time && time > 0){
@@ -27,14 +31,21 @@ function PlayStartDisplay({state}:{state:GameState | null}){
         return () => clearInterval(timer);
       }, []);
     return(
-        <div className="absolute left-[50%] top-4 -translate-x-[50%] text-center text-black p-5 z-10">
-            <h1>{"Time left: " + time}</h1>
+        <div className="text-text font-lilita text-2xl text-center w-full flex flex-col gap-2 justify-center">
+            <div className="flex flex-col items-center">
+                <h3>Time Left:</h3>
+                <h3>{time}</h3>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+                <h3>Selected:</h3>
+                {player && socketData && <SingleCard card={socketData?.state?.cards[player.index][socketData.selectIndex] as Card} index={socketData.selectIndex} selected={true}/>}
+            </div>
         </div>
     )
 }
 function GameStartDisplay(){
     return(
-        <div className="absolute left-[50%] -translate-x-[50%] rounded-lg bg-white text-black">
+        <div className="text-text font-lilita text-2xl text-center w-full">
             <h1>Game Started!</h1>
         </div>
     )
@@ -54,6 +65,7 @@ function StatusDisplay(){
             }
             if(socketData.state.phase==="RESULT"){
                 setStatus(2);
+                socketData.setSelectIndex(-1);
             }
             if(socketData.state.phase==="END"){
                 setStatus(3);
@@ -63,8 +75,8 @@ function StatusDisplay(){
     return(
         <>
             {status===0 && <GameStartDisplay/>}
-            {status===1 && socketData && <PlayStartDisplay state={socketData.state}/>}
-            {status===2 && socketData && <RoundFinishedDisplay state={socketData.state} playerId={socketData.playerId}/>}
+            {status===1 && socketData && <PlayStartDisplay/>}
+            {/* {status===2 && socketData && <RoundFinishedDisplay state={socketData.state} playerId={socketData.playerId}/>} */}
         </>
     )
 }

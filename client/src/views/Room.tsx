@@ -10,6 +10,8 @@ type SocketData = {
   sendJsonMessage: SendJsonMessage,
   state: GameState | null,
   playerId: string
+  selectIndex: number,
+  setSelectIndex: React.Dispatch<React.SetStateAction<number>>
 }
 
 export const MessageContext = createContext<undefined | SocketData>(undefined);
@@ -18,6 +20,7 @@ function Home() {
     const {id} = useParams();
     const [gameState, setGameState] = useState<GameState | null>(null);
     const [playerId, setPlayerId] = useState<string>("");
+    const [selectIndex, setSelectIndex] = useState<number>(-1);
     
     const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(`ws://localhost:3000${id&&id.length===6 ? "?room=" + id : ""}`);
 
@@ -52,6 +55,8 @@ function Home() {
           sendJsonMessage: sendJsonMessage,
           state : gameState,
           playerId: playerId,
+          selectIndex: selectIndex,
+          setSelectIndex: setSelectIndex,
           }}>
             {gameState && <Game/>}
             {!gameState && <Waiting id={id}/>}

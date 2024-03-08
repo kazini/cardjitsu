@@ -6,10 +6,9 @@ import StatusDisplay from "./StatusDisplay";
 
 function Game(){
     return(
-        <div className="flex-1 flex flex-col px-12 justify-between relative h-[95%]">
+        <div className="flex-1 flex flex-col justify-between relative h-full">
             <Score />
             <StatusDisplay/>
-            {/* {phase?.phase==="PLAY" && <Play state={phase.state} playerId={playerId}/>} */}
             <Cards/>
         </div>
     )
