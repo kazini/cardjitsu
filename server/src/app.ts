@@ -87,7 +87,7 @@ wss.on('connection', (ws, req)=>{
                 }
                 console.log("Game Started");
                 console.log(`Games in session: ${games.size}`);
-                setTimeout(() => gameLoop(roomID, games, clients), 1000);
+                setTimeout(() => gameLoop(roomID, games, clients), 4000);
             }
         }
         else{

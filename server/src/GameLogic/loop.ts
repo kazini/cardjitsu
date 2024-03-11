@@ -57,15 +57,15 @@ export const gameLoop = (roomID : string, games:Map<string, GameState>, clients:
     if(games.get(roomID).phase==="START"){
         //Handle Game Start
         handleGameStarted(roomID, games);
-        interval = 5000;
+        interval = 10000;
     }
     else if(games.get(roomID).phase==="PLAY"){
         handlePlayFinished(roomID, games);
-        interval = 2000;
+        interval = 6000;
     }
     else if(games.get(roomID).phase==="RESULT"){
         handlePlayRound(roomID, games);
-        interval=5000;
+        interval=10000;
     }
     games.get(roomID).time = interval;
     for(let i = 0; i< games.get(roomID).players.length; i++){
