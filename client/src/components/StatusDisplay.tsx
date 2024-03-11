@@ -84,7 +84,7 @@ function PlayStartDisplay(){
       }, []);
     return(
         <div className="text-text font-lilita text-2xl text-center w-full flex flex-1 flex-col gap-2 justify-between items-center">
-            <div className="flex flex-col items-center mt-15">
+            <div className="flex flex-col items-center mt-15 lg:text-4xl">
                 <h3>Time Left:</h3>
                 <h3>{time}</h3>
             </div>
