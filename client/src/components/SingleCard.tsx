@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { forwardRef, useContext } from "react";
 import { MessageContext } from "../views/Room";
 import { Card, actionMessage } from "../types";
 import fireURL from "../assets/fire.png";
@@ -10,8 +10,11 @@ const imageMap = {
     "WATER" : waterURL,
     "ICE" : iceURL,
 }
+type props = {
+    card:Card, index:number, selected:boolean, attrs?:string
+}
 
-function SingleCard({card, index, selected}: {card:Card, index:number, selected:boolean}){
+const SingleCard = forwardRef<HTMLDivElement, props>( function SingleCard({card, index, selected, attrs}, ref){
     const socketData = useContext(MessageContext);
     const handleClick = () =>{
         if (socketData?.sendJsonMessage && socketData?.state?.phase==="PLAY" && !selected){
@@ -25,7 +28,8 @@ function SingleCard({card, index, selected}: {card:Card, index:number, selected:
     }
     if(index != -1){
         return(
-            <div onClick={handleClick} className={`player-card-${index} w-[115px] h-[165px] p-3 relative flex flex-col items-center justify-center rounded-lg bg-text ${selected ? "outline outline-6 outline-secondary" : "outline-0"}`}>
+            <div ref={ref} onClick={handleClick} className={`player-card w-[115px] h-[165px] p-3 relative flex flex-col items-center justify-center rounded-lg bg-text ${selected ? "outline outline-6 outline-secondary" : "outline-0"}`}>
+                <div className={`opacity-0 ${attrs} absolute w-full h-full rounded-lg z-30 bg-primary`}></div>
                 <h2 className="absolute top-1 right-2 text-center font-lilita text-primary text-3xl">{card.value}</h2>
                 <img src={imageMap[card.element]} width={150} height={150} alt={card.element}></img>
                 {/* <h2>{card.element}</h2> */}
@@ -40,5 +44,5 @@ function SingleCard({card, index, selected}: {card:Card, index:number, selected:
         )
     }
 
-}
+});
 export default SingleCard;
