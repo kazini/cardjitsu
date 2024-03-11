@@ -22,7 +22,6 @@ const SingleCard = forwardRef<HTMLDivElement, props>( function SingleCard({card,
                 method: "ACTION",
                 selected: index
             } as actionMessage);
-            console.log(index);
             socketData.setSelectIndex(index);
         }
     }
@@ -32,14 +31,12 @@ const SingleCard = forwardRef<HTMLDivElement, props>( function SingleCard({card,
                 <div className={`opacity-0 ${attrs} absolute w-full h-full rounded-lg z-30 bg-primary`}></div>
                 <h2 className="absolute top-1 right-2 text-center font-lilita text-primary text-3xl">{card.value}</h2>
                 <img src={imageMap[card.element]} width={150} height={150} alt={card.element}></img>
-                {/* <h2>{card.element}</h2> */}
             </div>
         )
     }
     else{
         return(
             <div className={`w-[115px] h-[165px] p-3 relative flex flex-col items-center justify-center rounded-lg bg-primary outline outline-6 outline-secondary`}>
-                {/* <h2>{card.element}</h2> */}
             </div>
         )
     }
