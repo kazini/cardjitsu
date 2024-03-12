@@ -9,7 +9,7 @@ function Waiting({id}:{id:string|undefined}){
         setIdCopied(true);
     }
     const copyUrl = () =>{
-        navigator.clipboard.writeText(`http://localhost:5173/room/${id}` || "");
+        navigator.clipboard.writeText(`https://cardjitsugame.netlify.app/room/${id}` || "");
         setUrlCopied(true);
     }
 
@@ -39,7 +39,7 @@ function Waiting({id}:{id:string|undefined}){
             <div className="flex flex-col items-center">
                 <h3 className="text-secondary text-xl">Copy URL</h3>
                 <div className={`relative cursor-pointer bg-text rounded-md w-[300px] outline outline-green-400 ${urlCopied ? "outline-3" : " outline-0"}`} onClick={copyUrl}>
-                    <h2 className={`text-primary text-center p-1 px-14 truncate`}>{`http://localhost:5173/room/${id}`}</h2>
+                    <h2 className={`text-primary text-center p-1 px-14 truncate`}>{`https://cardjitsugame.netlify.app/room/${id}`}</h2>
                     <svg className="absolute right-2 top-0 bottom-0 my-auto" fill="#8EB0EB" height="24px" width="24px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 460 460" xmlSpace="preserve">
                         <g>
                             <g>
