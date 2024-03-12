@@ -13,7 +13,8 @@ function Home() {
     }
   }
   const handleCreateGame = async () =>{
-    fetch("http://localhost:3000/createGame")
+    // fetch("http://localhost:3000/createGame")
+    fetch("https://cardjitsu-server.onrender.com/createGame")
       .then(res=>res.json())
       .then(data=>navigate(`/room/${data.id}`));
   }

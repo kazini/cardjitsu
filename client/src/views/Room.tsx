@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom"
-import useWebSocket, { ReadyState } from 'react-use-websocket';
+import useWebSocket from 'react-use-websocket';
 import { useState, useEffect, createContext } from "react";
 import { SocketMessage, GameState } from "../types";
 import Game from "../components/Game";
@@ -22,7 +22,9 @@ function Home() {
     const [playerId, setPlayerId] = useState<string>("");
     const [selectIndex, setSelectIndex] = useState<number>(-1);
     
-    const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(`ws://localhost:3000${id&&id.length===6 ? "?room=" + id : ""}`);
+    // const { sendJsonMessage, lastJsonMessage } = useWebSocket(`ws://localhost:3000${id&&id.length===6 ? "?room=" + id : ""}`);
+    const { sendJsonMessage, lastJsonMessage } = useWebSocket(`wss://cardjitsu-server.onrender.com${id&&id.length===6 ? "?room=" + id : ""}`);
+
 
     useEffect(() => {
         if (lastJsonMessage && Object.keys(lastJsonMessage).length>0) {
@@ -39,14 +41,6 @@ function Home() {
             }
         }
     }, [lastJsonMessage]);
-
-    const connectionStatus = {
-        [ReadyState.CONNECTING]: 'Connecting',
-        [ReadyState.OPEN]: 'Connected',
-        [ReadyState.CLOSING]: 'Closing',
-        [ReadyState.CLOSED]: 'Closed',
-        [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-      }[readyState];
 
     return (
       <>
