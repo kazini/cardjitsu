@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 client/dist
+!client/dist/_redirects
 server/dist
 
 # Editor directories and files
