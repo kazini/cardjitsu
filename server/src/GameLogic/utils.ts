@@ -46,7 +46,7 @@ export const checkRoundWon = (card1:Card, card2:Card, roomID:string, games:Map<s
             }
             return 0;
         }
-        else{
+        else if(card1.value<card2.value){
             if(card2.element==="FIRE"){
                 games.get(roomID).score[1][0]++;
             }
@@ -58,6 +58,9 @@ export const checkRoundWon = (card1:Card, card2:Card, roomID:string, games:Map<s
             }
             return 1;
         }
+		else if(card1.value===card2.value){
+			return -1;
+		}
     }
     else{
         if(card1.element==="FIRE" && card2.element==="ICE"){
